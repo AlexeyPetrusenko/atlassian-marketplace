@@ -16,7 +16,7 @@ runs:
   steps:
     - name: Get release version
       id: release-version
-      run: echo ::set-output name=value::${{ github.event.release.tag_name }}
+      run: echo ::set-output name=value::${{ github.ref_name }}
       shell: bash
 
     - name: Print tag version
