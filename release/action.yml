@@ -27,18 +27,18 @@ runs:
   steps:
     - name: Verify release tag
       id: verify-release-tag
-      uses: Atlas-Authority/atlassian-marketplace-release-action/verify-release-tag@main
+      uses: AlexeyPetrusenko/atlassian-marketplace/verify-release-tag@main
       with:
         branch: ${{ inputs.branch }}
         githubToken: ${{ inputs.githubToken }}
 
     - name: Setup node environment
       id: setup-node-env
-      uses: Atlas-Authority/atlassian-marketplace-release-action/setup-node@main
+      uses: AlexeyPetrusenko/atlassian-marketplace/setup-node@main
 
     - name: Build and upload jar files to release assets
       id: build-jar
-      uses: Atlas-Authority/atlassian-marketplace-release-action/build-jar@main
+      uses: AlexeyPetrusenko/atlassian-marketplace/build-jar@main
       with:
         release-version: ${{ steps.verify-release-tag.outputs.release-version }}
         branch: ${{ inputs.branch }}
