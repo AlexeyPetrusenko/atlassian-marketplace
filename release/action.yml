@@ -44,6 +44,17 @@ runs:
         branch: ${{ inputs.branch }}
         githubToken: ${{ inputs.githubToken }}
 
+    - name: Publish to marketplace
+        id: markeplace
+        uses: AlexeyPetrusenko/atlassian-marketplace/build-jar@main
+        with:
+          addonKey: ${{ steps.build-jar.outputs.addon-key }}
+          filePath: ${{ steps.build-jar.outputs.file-path }}
+          fileName: ${{ steps.build-jar.outputs.file-name }}
+          version: ${{ steps.verify-release-tag.outputs.release-version }}
+          marketplaceUser: ${{ inputs.marketplaceUser }}
+          marketplaceToken: ${{ inputs.marketplaceToken }}
+
     - name: Commit the changes to pom.xml
       run: |
         git stash apply
