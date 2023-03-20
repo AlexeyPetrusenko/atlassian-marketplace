@@ -45,31 +45,12 @@ runs:
         githubUserEmail: ${{ inputs.githubUserEmail }}
         azureToken: ${{ inputs.azureToken }}
 
-#    - name: Verify release tag
-#      id: verify-release-tag
-#      uses: AlexeyPetrusenko/atlassian-marketplace/verify-release-tag@master
-#      with:
-#        branch: ${{ inputs.branch }}
-#        githubToken: ${{ inputs.githubToken }}
-#
-#    - name: Setup node environment
-#      id: setup-node-env
-#      uses: AlexeyPetrusenko/atlassian-marketplace/setup-node@master
-
     - name: Build and upload jar files to release assets
       id: build-jar
       uses: AlexeyPetrusenko/atlassian-marketplace/build-tag@master
       with:
         tag: ${{ steps.perform-release.outputs.released-tag }}
         githubToken: ${{ inputs.githubToken }}
-
-#    - name: Build and upload jar files to release assets
-#      id: build-jar
-#      uses: AlexeyPetrusenko/atlassian-marketplace/build-jar@master
-#      with:
-#        release-version: ${{ steps.verify-release-tag.outputs.release-version }}
-#        branch: ${{ inputs.branch }}
-#        githubToken: ${{ inputs.githubToken }}
 
     - name: Publish to marketplace
       id: markeplace
@@ -93,14 +74,3 @@ runs:
       run: echo "${{ steps.release-notes.outputs.notes }}"
       shell: bash
 
-#
-#    - name: Commit the changes to pom.xml
-#      run: |
-#        git stash apply
-#        git config --global user.name "${{ inputs.githubUserName }}"
-#        git config --global user.email "${{ inputs.githubUserEmail }}"
-#        git add pom.xml
-#        git commit -m "Bumped version to ${{ steps.verify-release-tag.outputs.release-version }}"
-#        git push
-#      if: steps.build-jar.outputs.should-bump-version == 'true'
-#      shell: bash
