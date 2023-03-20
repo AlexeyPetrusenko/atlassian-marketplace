@@ -37,7 +37,7 @@ runs:
   steps:
     - name: Perform release
       id: perform-release
-      uses: AlexeyPetrusenko/atlassian-marketplace/rerform-release@master
+      uses: AlexeyPetrusenko/atlassian-marketplace/perform-release@master
       with:
         branch: ${{ inputs.branch }}
         version: ${{ inputs.version }}
