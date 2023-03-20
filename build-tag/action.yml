@@ -37,7 +37,7 @@ runs:
       shell: bash
 
     - name: Packaging
-      run: atlas-mvn -q package -DskipTests=${{ inputs.skipTests }} "-Darguments=-DskipTests=${{ inputs.skipTests }}"
+      run: atlas-mvn -q clean package -DskipTests=${{ inputs.skipTests }} "-Darguments=-DskipTests=${{ inputs.skipTests }}"
       shell: bash
 
     - name: Get released version
@@ -73,5 +73,6 @@ runs:
       uses: softprops/action-gh-release@v1
       with:
         token: ${{ inputs.githubToken }}
+        tag_name: ${{ inputs.tag }}
         files: target/${{ steps.get-jar-file.outputs.name }}
 
