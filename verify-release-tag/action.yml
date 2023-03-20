@@ -1,5 +1,5 @@
 name: 'Verify Release Tag'
-description: 'Check if the release branch contain the releaes tag'
+description: 'Check if the release branch contain the release tag'
 inputs:
   branch:
     description: 'The release branch to checkout'

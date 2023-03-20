@@ -1,0 +1,73 @@
+name: 'Build Jar by tag'
+description: 'Build server app to jar files'
+inputs:
+  tag:
+    description: 'Tag to build'
+    required: true
+  githubToken:
+    description: 'The token used to checkout the repo'
+    required: true
+outputs:
+  addon-key:
+    description: "Server app addon key"
+    value: ${{ steps.addon-key.outputs.info }}
+  file-path:
+    description: "Path to the jar file"
+    value: target/${{ steps.get-jar-file.outputs.name }}
+  file-name:
+    description: "jar file name"
+    value: ${{ steps.get-jar-file.outputs.name }}
+  version:
+    description: "build version"
+    value: ${{ steps.released-version.outputs.value }}
+runs:
+  using: 'composite'
+  steps:
+    - name: Checkout tag commit
+      run: git checkout ${{ inputs.tag }}
+      shell: bash
+
+    - name: Get artifact ID
+      id: artifact-id
+      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.artifactId -q -DforceStdout | grep -v '\[' | tail -1)"
+      shell: bash
+
+    - name: Packaging
+      run: atlas-mvn -q package
+      shell: bash
+
+    - name: Get released version
+      id: released-version
+      run: echo "::set-output name=value::$(atlas-mvn help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[' | tail -1)"
+      shell: bash
+
+    - name: Get jar file name
+      id: get-jar-file
+      run: |
+        echo "::set-output name=name::${{ inputs.tag }}.jar"
+        echo "::set-output name=archive::${{ inputs.tag }}"
+      shell: bash
+
+    - name: Get addon key
+      id: addon-key
+      uses: mavrosxristoforos/get-xml-info@1.1.0
+      with:
+        xml-file: target/classes/atlassian-plugin.xml
+        xpath: //atlassian-plugin/@key
+
+    - name: Print addon key
+      run: echo ${{ steps.addon-key.outputs.info }}
+      shell: bash
+
+    - name: Archive for download
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{ steps.get-jar-file.outputs.archive }}
+        path: target/${{ steps.get-jar-file.outputs.name }}
+
+    - name: Upload jar as asset to release
+      uses: softprops/action-gh-release@v1
+      with:
+        token: ${{ inputs.githubToken }}
+        files: target/${{ steps.get-jar-file.outputs.name }}
+

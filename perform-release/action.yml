@@ -1,0 +1,91 @@
+name: 'Perform DC plugin release'
+description: 'Using `release:prepare && release:perform` to release required version'
+inputs:
+  branch:
+    description: 'Branch to use'
+    required: true
+    default: 'master'
+  version:
+    description: 'Version to release'
+    required: false
+    default: ''
+  githubUserName:
+    description: 'Github username to commit'
+    required: true
+  githubUserEmail:
+    description: 'Github user email to commit'
+    required: true
+  azureToken:
+    description: 'Azure artifactory token'
+    required: true
+outputs:
+  released-tag:
+    description: "Released tag"
+    value: ${{ steps.released-tag.outputs.value }}
+runs:
+  using: 'composite'
+  steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.branch }}
+
+    - name: Reconfigure git to use HTTP authentication
+      run: |
+        git config --global url."https://github.com/".insteadOf ssh://git@github.com/
+      shell: bash
+
+    - name: Install Atlas-SDK
+      id: install-atlas-sdk
+      run: |
+        sudo sh -c 'echo "deb https://packages.atlassian.com/debian/atlassian-sdk-deb/ stable contrib" >> /etc/apt/sources.list'
+        wget https://packages.atlassian.com/api/gpg/key/public
+        sudo apt-key add public
+        sudo apt-get update
+        sudo apt-get install atlassian-plugin-sdk
+        atlas-version
+      shell: bash
+
+    - name: Install Java and Maven
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'adopt'
+        java-version: '8'
+
+    - name: Get setting.xml file
+      id: get-settings-file
+      run: echo "::set-output name=value::$(atlas-version|grep "Executing" | tr ' ' '\n' | tail -1)"
+      shell: bash
+
+    - name: Print file path
+      run: echo ${{ steps.get-settings-file.outputs.value }}
+      shell: bash
+
+    - name: Check if MoveWorkForward repository set up
+      id: is-moveworkforward-repository-defined
+      run: echo ::set-output name=value::$(grep -q MoveWorkForward ${{ steps.get-settings-file.outputs.value }} || echo false)
+      shell: bash
+
+    #TODO: replace token with ${{ secret.AZURE_TOKEN }}
+    - name: Set up MoveWorkForward repository
+      run: |
+        sudo sed -ibak -e 's/\(<\/servers>\)/<server><id>releases<\/id><username>MoveWorkForward<\/username><password>${{ inputs.azureToken }}<\/password><\/server><\/servers>/g' \
+            -e 's/\(<\/repositories>\)/<repository><id>releases<\/id><url>https:\/\/pkgs.dev.azure.com\/MoveWorkForward\/c260d819-1750-4b4a-b09b-8b85b64b569a\/_packaging\/releases\/maven\/v1<\/url><releases><enabled>true<\/enabled><\/releases><snapshots><enabled>true<\/enabled><\/snapshots><\/repository><\/repositories>/g' ${{ steps.get-settings-file.outputs.value }}
+      if: steps.is-moveworkforward-repository-defined.outputs.value == 'false'
+      shell: bash
+
+    - name: Perform version release
+      run: |
+        git config --global user.name "${{ inputs.githubUserName }}"
+        git config --global user.email "${{ inputs.githubUserEmail }}"
+        atlas-mvn release:prepare && release:perform -B -DreleaseVersion=${{ inputs.version }}
+      shell: bash
+
+    - name: Get released tag
+      id: released-tag
+      run: echo "::set-output name=value::$(git tag --sort=committerdate | tail -1)"
+      shell: bash
+
+    - name: Print released tag
+      run: echo ${{ steps.released-tag.outputs.value }}
+      shell: bash

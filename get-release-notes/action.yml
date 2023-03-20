@@ -1,0 +1,33 @@
+name: 'Get release notes'
+description: 'Get release notes from provided folder'
+inputs:
+  tag:
+    description: 'Tag to get release notes from'
+    required: true
+  releaseNotesDirectory:
+    description: 'Release notes directory'
+    required: false
+    default: 'release-notes'
+outputs:
+  notes:
+    description: "Released notes"
+    value: ${{ steps.notes.outputs.value }}
+runs:
+  using: 'composite'
+  steps:
+    - name: checkout
+      uses: actions/checkout@v3
+      with:
+        ref: ${{ inputs.tag }}
+
+    - id: release_notes_changes
+      uses: jsmith/changes-since-last-tag@v0.3.3
+      with:
+        glob: ${{ inputs.releaseNotesDirectory }}/*.txt
+
+    - name: Read notes
+      id: notes
+      uses: andstor/file-reader-action@v1
+      if: steps.release_notes_changes.outputs.added != ''
+      with:
+        path: ${{ steps.release_notes_changes.outputs.added }}
