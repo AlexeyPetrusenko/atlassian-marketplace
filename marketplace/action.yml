@@ -120,19 +120,3 @@ runs:
     - name: Print app version creation response
       run: echo ${{ steps.create-mp-version-res.outputs.response }}
       shell: bash
-
-    - name: Bump required version for migration
-      id: bump-migration-version-res
-      uses: fjogeleit/http-request-action@v1.9.0
-      with:
-        url: ${{ steps.mp-base-url.outputs.value }}${{ steps.mp-addon-endpoint.outputs.replaced }}/migration
-        method: PATCH
-        contentType: application/json-patch+json
-        username: ${{ inputs.marketplaceUser }}
-        password: ${{ inputs.marketplaceToken }}
-        timeout: '30000'
-        data: '[{ "op": "replace", "path": "/cloudMigrationAssistantCompatibility", "value": "${{ inputs.version }}" }]'
-
-    - name: Print bump migration version response
-      run: echo ${{ steps.bump-migration-version-res.outputs.response }}
-      shell: bash
