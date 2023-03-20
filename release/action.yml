@@ -75,6 +75,7 @@ runs:
       with:
         tag: ${{ steps.perform-release.outputs.released-tag }}
         releaseNotesDirectory: ${{ inputs.releaseNotesDirectory }}
+        githubToken: ${{ inputs.githubToken }}
 
     - name: Echo notes
       run: echo "${{ steps.release-notes.outputs.notes }}"

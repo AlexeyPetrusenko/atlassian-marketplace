@@ -4,6 +4,9 @@ inputs:
   tag:
     description: 'Tag to get release notes from'
     required: true
+  githubToken:
+    description: 'The token used to checkout the repo'
+    required: true
   releaseNotesDirectory:
     description: 'Release notes directory'
     required: false
@@ -22,6 +25,8 @@ runs:
 
     - id: release_notes_changes
       uses: jsmith/changes-since-last-tag@v0.3.3
+      env:
+        GITHUB_TOKEN: ${{ inputs.githubToken }}
       with:
         glob: ${{ inputs.releaseNotesDirectory }}/*.txt
 
