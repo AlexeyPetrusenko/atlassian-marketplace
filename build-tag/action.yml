@@ -7,6 +7,10 @@ inputs:
   githubToken:
     description: 'The token used to checkout the repo'
     required: true
+  skipTests:
+    description: 'Skip tests'
+    type: boolean
+    required: false
 outputs:
   addon-key:
     description: "Server app addon key"
@@ -33,7 +37,7 @@ runs:
       shell: bash
 
     - name: Packaging
-      run: atlas-mvn -q package
+      run: atlas-mvn -q package -DskipTests=${{ inputs.skipTests }} "-Darguments=-DskipTests=${{ inputs.skipTests }}"
       shell: bash
 
     - name: Get released version

@@ -18,6 +18,10 @@ inputs:
   azureToken:
     description: 'Azure artifactory token'
     required: true
+  skipTests:
+    description: 'Skip tests'
+    type: boolean
+    required: false
 outputs:
   released-tag:
     description: "Released tag"
@@ -77,7 +81,7 @@ runs:
       run: |
         git config --global user.name "${{ inputs.githubUserName }}"
         git config --global user.email "${{ inputs.githubUserEmail }}"
-        atlas-mvn release:prepare release:perform -B -DreleaseVersion=${{ inputs.version }}
+        atlas-mvn release:prepare -DskipTests=${{ inputs.skipTests }} "-Darguments=-DskipTests=${{ inputs.skipTests }}" -B -DreleaseVersion=${{ inputs.version }}
       shell: bash
 
     - name: Get released tag
