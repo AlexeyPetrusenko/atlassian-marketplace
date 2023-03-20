@@ -31,6 +31,10 @@ inputs:
     description: 'Release notes directory'
     required: false
     default: 'release-notes'
+  skipTests:
+    description: 'Skip tests'
+    type: boolean
+    required: false
 
 runs:
   using: 'composite'
@@ -44,6 +48,7 @@ runs:
         githubUserName: ${{ inputs.githubUserName }}
         githubUserEmail: ${{ inputs.githubUserEmail }}
         azureToken: ${{ inputs.azureToken }}
+        skipTests: ${{ inputs.skipTests }}
 
     - name: Build and upload jar files to release assets
       id: build-jar
@@ -51,6 +56,7 @@ runs:
       with:
         tag: ${{ steps.perform-release.outputs.released-tag }}
         githubToken: ${{ inputs.githubToken }}
+        skipTests: ${{ inputs.skipTests }}
 
     - name: Publish to marketplace
       id: markeplace
