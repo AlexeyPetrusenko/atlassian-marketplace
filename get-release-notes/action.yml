@@ -11,6 +11,10 @@ inputs:
     description: 'Release notes directory'
     required: false
     default: 'release-notes'
+  releaseNotesPattern:
+    description: 'Release notes pattern'
+    required: false
+    default: '*.txt'
 outputs:
   notes:
     description: "Released notes"
@@ -30,7 +34,7 @@ runs:
         TAG: ${{ inputs.tag }}
       with:
         tag: ${{ inputs.tag }}
-        glob: ${{ inputs.releaseNotesDirectory }}/*.txt
+        glob: ${{ inputs.releaseNotesDirectory }}/${{ inputs.releaseNotesPattern }}
 
     - name: Read notes
       id: notes

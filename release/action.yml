@@ -31,6 +31,13 @@ inputs:
     description: 'Release notes directory'
     required: false
     default: 'release-notes'
+  releaseNotesPattern:
+    description: 'Release notes pattern'
+    required: false
+    default: '*.txt'
+  releaseSummary:
+    description: 'The release summary'
+    required: false
   skipTests:
     description: 'Skip tests'
     type: boolean
@@ -58,6 +65,19 @@ runs:
         githubToken: ${{ inputs.githubToken }}
         skipTests: ${{ inputs.skipTests }}
 
+    - name: Get release notes
+      id: release-notes
+      uses: AlexeyPetrusenko/atlassian-marketplace/get-release-notes@master
+      with:
+        tag: ${{ steps.perform-release.outputs.released-tag }}
+        releaseNotesDirectory: ${{ inputs.releaseNotesDirectory }}
+        releaseNotesPattern: ${{ inputs.releaseNotesPattern }}
+        githubToken: ${{ inputs.githubToken }}
+
+    - name: Echo notes
+      run: echo "${{ steps.release-notes.outputs.notes }}"
+      shell: bash
+
     - name: Publish to marketplace
       id: markeplace
       uses: AlexeyPetrusenko/atlassian-marketplace/marketplace@master
@@ -68,16 +88,7 @@ runs:
         version: ${{ steps.build-jar.outputs.version }}
         marketplaceUser: ${{ inputs.marketplaceUser }}
         marketplaceToken: ${{ inputs.marketplaceToken }}
+        releaseSummary: ${{ inputs.releaseSummary }}
+        releaseNotes: ${{ steps.release-notes.outputs.notes }}
 
-    - name: Get release notes
-      id: release-notes
-      uses: AlexeyPetrusenko/atlassian-marketplace/get-release-notes@master
-      with:
-        tag: ${{ steps.perform-release.outputs.released-tag }}
-        releaseNotesDirectory: ${{ inputs.releaseNotesDirectory }}
-        githubToken: ${{ inputs.githubToken }}
-
-    - name: Echo notes
-      run: echo "${{ steps.release-notes.outputs.notes }}"
-      shell: bash
 

@@ -20,6 +20,12 @@ inputs:
   marketplaceToken:
     description: 'The marketplace token'
     required: true
+  releaseSummary:
+    description: 'The release summary'
+    required: false
+  releaseNotes:
+    description: 'The release notes'
+    required: false
 runs:
   using: 'composite'
   steps:
@@ -115,7 +121,7 @@ runs:
         password: ${{ inputs.marketplaceToken }}
         #customHeaders: '{"X-Mpac-DataCenter-BuildNumber": "str(serverBuildNumber + 10)"}'
         timeout: '30000'
-        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true } }'
+        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true }, "text": { "releaseSummary": "${{ inputs.releaseSummary }}", "releaseNotes": "<p>${{ inputs.releaseNotes }}</p>" } }'
 
     - name: Print app version creation response
       run: echo ${{ steps.create-mp-version-res.outputs.response }}
