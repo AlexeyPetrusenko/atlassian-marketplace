@@ -121,7 +121,7 @@ runs:
         password: ${{ inputs.marketplaceToken }}
         #customHeaders: '{"X-Mpac-DataCenter-BuildNumber": "str(serverBuildNumber + 10)"}'
         timeout: '30000'
-        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true }, "text": { "releaseSummary": "${{ inputs.releaseSummary }}", "releaseNotes": "<p>${{ inputs.releaseNotes }}</p>" } }'
+        data: '{ "_links": { "artifact": { "href": "${{ steps.mp-upload-endpoint.outputs.value }}" } }, "status": "private", "name": "${{ inputs.version }}", "release": { "beta": false, "supported": true }, "text": { "releaseSummary": ${{ toJSON(inputs.releaseSummary) }}, "releaseNotes": ${{ toJSON(inputs.releaseNotes) }} } }'
 
     - name: Print app version creation response
       run: echo ${{ steps.create-mp-version-res.outputs.response }}
